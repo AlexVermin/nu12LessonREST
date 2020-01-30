@@ -79,9 +79,21 @@ class HHArea:
     def get_region(self):
         return self._current
 
+    def get_list(self):
+        return self._obj
+
+    @staticmethod
+    def load_area_by_id(p_id=None):
+        m_res = None
+        if p_id is not None:
+            m_obj = requests.get(f'{API_URL}/{p_id}').json()
+            if 'name' in m_obj:
+                m_res = m_obj['name']
+        return m_res
+
 
 if '__main__' == __name__:
-    m_area = HHArea()
-    m_area.initialize()
+    # m_area = HHArea()
+    # m_area.initialize()
     # print(m_area._obj)
-    print(m_area.get_area())
+    print(HHArea.load_area_by_id(4))
