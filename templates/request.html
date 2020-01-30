@@ -1,46 +1,32 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Сформировать запрос</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-</head>
-<body>
-    <div class="container">
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="./index.html">Главная</a>
-                </li>
-                <li class="nav-item active">
-                    <a class="nav-link" href="./request.html">Создать запрос</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="./results.html">Итоги запросов</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="./about.html">Контакты</a>
-                </li>
-            </ul>
-        </nav>
-    </div>
-    <div class="container">
-        <br/><br/>
+{% macro show_items(p_list, p_lvl=0)%}
+    {% for item in p_list %}
+    {% set m_tab = '-'*p_lvl %}
+    <option value="{{ item.id }}">{{'-'*p_lvl}} {{ item.name }}</option>
+    {% if item.areas %}
+        {{ show_items(item.areas, p_lvl+1) }}
+    {% endif %}
+    {% endfor %}
+{% endmacro %}
+
+{% extends 'index.html' %}
+{% block content %}
         <h5>Задайте параметры для поиска:</h5>
         <hr/>
-        <form method="post" action="./show_stats.html">
+        <form method="post" action="/getstats/">
             <div class="form-group">
                 <input type="text" placeholder="Введите Ваш запрос здесь" name="text" class="form-control">
             </div>
             <div class="form-group">
                 <select class="form-control" name="area">
-                    <option selected disabled>Выберите регион из списка</option>
-                    <option disabled>Подразумевается динамическая генерация</option>
+                    <option selected disabled value="-1">Выберите регион из списка</option>
+                    {% if areas %}
+                        {{ show_items(areas) }}
+                    {% else %}
+                        <option disabled value="-2">Ошибка формирования списка.</option>
+                    {% endif %}
                 </select>
             </div>
             <input type="submit" class="btn btn-dark btn-sm">
         </form>
-    </div>
-</body>
-</html>
+        <hr/>
+{% endblock %}

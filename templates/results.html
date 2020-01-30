@@ -1,66 +1,36 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Сохранённые запросы</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-</head>
-<body>
-    <div class="container">
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="./index.html">Главная</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="./request.html">Создать запрос</a>
-                </li>
-                <li class="nav-item active">
-                    <a class="nav-link" href="./results.html">Итоги запросов</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="./about.html">Контакты</a>
-                </li>
-            </ul>
-        </nav>
-    </div>
-    <div class="container">
-        <br/><br/>
-        <h5>Сохранённые запросы</h5>
-        <p>
-            <hr/>
-            Здесь будет список сохранённых запросов, с возможностью просмотреть по ним итоговую статистику.<br/>
-            Пример вывода списка:
-             <table class="table table-sm">
-                <thead class="thead-light">
-                    <tr>
-                        <th scope="col">Время запроса</th>
-                        <th scope="col" colspan="2">Текст запроса</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <th scope="row">05.01.2020 18:01:26</th>
-                        <td>plsql developer novosibirsk</td>
-                        <td>
-                            <a href="./show_stats.html" class="btn btn-dark btn-sm active" role="button" aria-pressed="true">
-                                Смотреть
-                            </a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">05.01.2020 16:46:59</th>
-                        <td>python developer (Санкт-Петербург)</td>
-                        <td>
-                            <a href="./show_stats.html" class="btn btn-dark btn-sm active" role="button" aria-pressed="true">
-                                Смотреть
-                            </a>
-                        </td>
-                    </tr>
-                </tbody>
-             </table>
-        </p>
-    </div>
-</body>
-</html>
+{% extends 'index.html' %}
+{% block content %}
+    <h5>Сохранённые запросы</h5>
+    <p>
+        <hr/>
+        {% if m_table %}
+        <table class="table table-sm">
+            <thead class="thead-light">
+                <tr>
+                    <th scope="col">Время запроса</th>
+                    <th scope="col">Текст запроса</th>
+                    <th scope="col">Регион</th>
+                    <th scope="col">&nbsp;</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in m_table %}
+                <tr>
+                    <th scope="row">{{ m_table[item].time }}</th>
+                    <td>{{ m_table[item].query }}</td>
+                    <td>{{ m_table[item].place }}</td>
+                    <td>
+                        <a href="/results/{{ item }}" class="btn btn-dark btn-sm active" role="button" aria-pressed="true">
+                        Смотреть
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        Нет данных.
+        {% endif %}
+        <hr/>
+    </p>
+{% endblock %}
