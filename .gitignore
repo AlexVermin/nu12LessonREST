@@ -104,5 +104,4 @@ data/
 # mypy
 .mypy_cache/
 
-/saved_reqs
 /examples.py
