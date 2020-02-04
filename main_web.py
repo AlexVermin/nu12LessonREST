@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, session, redirect, url_for
+from flask import Flask, render_template, request, session, redirect, url_for, jsonify
 from modules.hh_stats_class import HHStatistics
 from modules.hh_area_class import HHArea
 
@@ -94,7 +94,6 @@ def do_logout():
 @web.route('/getstats/', methods=['GET'])
 def show_form_page():
     m_list = HHArea()
-    m_list.initialize()
     return render_template(
         'request.html',
         page='getstats',
@@ -104,11 +103,21 @@ def show_form_page():
     )
 
 
+@web.route('/getarea/', defaults={'area': None})
+@web.route('/getarea/<area>', methods=['GET'])
+def get_area_list(area):
+    # print('param: ', area)
+    m_list = HHArea()
+    return jsonify(m_list.get_list(area))
+
+
 @web.route('/getstats/', methods=['POST'])
 def load_data():
     m_obj = HHStatistics()
     m_obj.set_search_str(request.form['text'])
     m_obj.set_area(int(request.form['area']))
+    print(f'txt => {request.form["text"]}')
+    print(f'rgn => {request.form["area"]}')
     m_obj.load_data()
     return redirect(url_for('show_results_page'))
 

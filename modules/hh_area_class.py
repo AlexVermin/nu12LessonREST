@@ -1,20 +1,33 @@
 import requests
 
 
-API_URL = 'https://api.hh.ru/areas'
+API_URL = 'https://api.hh.ru/areas/'
 
 
 class HHArea:
 
     def __init__(self):
-        self._obj = None
+        self._obj = []
         self._current = None
         self._name = None
 
-    def initialize(self):
-        self._obj = requests.get(API_URL).json()
+    def get_list(self, item=None):
+        m_addr = API_URL if item is None else f'{API_URL}{item}'
+        m_data = requests.get(m_addr).json()
+        del self._obj[:]
+        m_list = m_data if item is None else m_data['areas']
+        # print(m_list)
+        for item in m_list:
+            self._obj.append(
+                {
+                    'id': item['id'],
+                    'name': item['name'],
+                    'has_child': 1 if len(item['areas']) > 0 else 0
+                }
+            )
         self._current = None
         self._name = None
+        return self._obj
 
     def reset(self):
         self._current = None
@@ -79,21 +92,30 @@ class HHArea:
     def get_region(self):
         return self._current
 
-    def get_list(self):
+    def _get_obj(self):
+        # m_res = []
+        # if parent is not None:
+        #     for item in self._obj:
+        #         print(item['id'], ' <=> ', parent)
+        #         if int(item['id']) == parent:
+        #             for area in item['areas']:
+        #                 m_res.append({'id': area['id'], 'name': area['name']})
+        # else:
+        #     for item in self._obj:
+        #         m_res.append({'id': item['id'], 'name': item['name']})
         return self._obj
 
     @staticmethod
     def load_area_by_id(p_id=None):
         m_res = None
         if p_id is not None:
-            m_obj = requests.get(f'{API_URL}/{p_id}').json()
+            m_obj = requests.get(f'{API_URL}{p_id}').json()
             if 'name' in m_obj:
                 m_res = m_obj['name']
         return m_res
 
 
 if '__main__' == __name__:
-    # m_area = HHArea()
-    # m_area.initialize()
-    # print(m_area._obj)
-    print(HHArea.load_area_by_id(4))
+    m_area = HHArea()
+    print(m_area.load_area_by_id(1002))
+    # print(HHArea.load_area_by_id(4))

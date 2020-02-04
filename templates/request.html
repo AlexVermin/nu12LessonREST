@@ -2,31 +2,124 @@
     {% for item in p_list %}
     {% set m_tab = '-'*p_lvl %}
     <option value="{{ item.id }}">{{'-'*p_lvl}} {{ item.name }}</option>
-    {% if item.areas %}
+    {#% if item.areas %}
         {{ show_items(item.areas, p_lvl+1) }}
-    {% endif %}
+    {% endif %#}
     {% endfor %}
 {% endmacro %}
 
 {% extends 'index.html' %}
 {% block content %}
+<script language="JavaScript">
+    function clearOptions(p_lvl) {
+        var m_lvl = p_lvl;
+        while (1) {
+            var m_name = 'area' + m_lvl;
+            var obj = document.getElementById(m_name);
+            if (obj) {
+                obj.parentNode.removeChild(obj);
+            } else {
+                break;
+            }
+            m_lvl++;
+        }
+    }
+
+    function buildOptions(p_data, p_lvl) {
+        var p_obj = document.getElementById('area_list');
+        var m_name = 'area'+p_lvl
+        if (p_obj) {
+            var m_obj = document.getElementById(m_name)
+            if (m_obj) {
+                m_obj.parentNode.removeChild(m_obj)
+            }
+            var m_sel = document.createElement('select');
+            m_sel.className = 'form-control';
+            m_sel.id = m_name;
+            m_sel.addEventListener('change',  function() { doit(this, p_lvl); } );
+            var m_list = '<option value="-1">не имеет значения</option>'
+            for (var i in p_data) {
+                m_list += '<option value="' +p_data[i].id+ '">' +p_data[i].name+ '</option>'
+            }
+            m_sel.innerHTML = m_list
+            p_obj.appendChild(m_sel);
+        }
+    }
+
+    function doit(p_obj, p_lvl) {
+        clearOptions(p_lvl+1)
+        var areaList = document.getElementById('area_list');
+        if (areaList) {
+            var m_data = new XMLHttpRequest();
+            m_data.open('GET', '/getarea/'+p_obj.value);
+            m_data.responseType = 'json';
+            m_data.send();
+            m_data.onload = function() {
+                if (m_data.status == 200) {
+                    if (m_data.response.length > 0) {
+                        buildOptions(m_data.response, p_lvl+1);
+                    }
+                }
+            }
+        }
+    }
+
+    function check_form() {
+        var m_lvl = 0;
+        var cur_area = -1;
+        while (1) {
+            var m_name = 'area' + m_lvl;
+            var obj = document.getElementById(m_name);
+            if (obj) {
+                if (obj.value > 0) {
+                    cur_area = obj.value;
+                }
+            } else {
+                break;
+            }
+            m_lvl++;
+        }
+        if (cur_area > 0) {
+            var m_form = document.getElementById('main_form');
+            if (m_form) {
+                if (m_form.text.value.length < 1) {
+                    alert('Необходимо ввести текст для поиска вакансий!');
+                } else {
+                    m_form.area.value = cur_area;
+                    m_form.submit();
+                }
+            } else {
+                alert('Ошибка загрузки страницы: отсутствует форма поиска!');
+            }
+        } else {
+            alert('Необходимо выбрать хоть какой-то регион для поисков!');
+        }
+    }
+</script>
         <h5>Задайте параметры для поиска:</h5>
         <hr/>
-        <form method="post" action="/getstats/">
-            <div class="form-group">
-                <input type="text" placeholder="Введите Ваш запрос здесь" name="text" class="form-control">
-            </div>
-            <div class="form-group">
-                <select class="form-control" name="area">
-                    <option selected disabled value="-1">Выберите регион из списка</option>
-                    {% if areas %}
-                        {{ show_items(areas) }}
-                    {% else %}
-                        <option disabled value="-2">Ошибка формирования списка.</option>
-                    {% endif %}
-                </select>
-            </div>
-            <input type="submit" class="btn btn-dark btn-sm">
-        </form>
+        <div id="area_list">
+            <label>Выберите регион:</label>
+            <select class="form-control" id="area0" onchange="doit(this, 0)">
+                <option selected value="-1">не имеет значения</option>
+                {% if areas %}
+                    {% for item in areas %}
+                    <option value="{{ item.id }}">{{ item.name }}</option>
+                    {% endfor %}
+                {% endif %}
+            </select>
+
+        </div>
         <hr/>
+        <form method="post" action="/getstats/" id="main_form">
+            <div class="form-group">
+                <label>Запрос для поиска вакансий:</label>
+                <input type="text" placeholder="Введите Ваш запрос здесь" name="text" class="form-control">
+                <input type="hidden" name="area" value="" id="req_area">
+            </div>
+            <hr/>
+            <div class="form-group">
+                <input type="button" class="btn btn-dark btn-sm" value="Сбор статистики" onclick="check_form()">
+            </div>
+        </form>
 {% endblock %}
