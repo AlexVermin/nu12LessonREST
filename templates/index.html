@@ -2,43 +2,70 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Главная страница проекта</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>{% if page_title %} {{page_title}} {% else %} Главная страница {% endif %}</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
 </head>
 <body>
     <div class="container">
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
-                    <a class="nav-link" href="./index.html">Главная</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="./request.html">Создать запрос</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="./results.html">Итоги запросов</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="./about.html">Контакты</a>
-                </li>
-            </ul>
-        </nav>
+        <div class="row navbar-expand-lg navbar-dark bg-dark">
+            <div class="col">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item{% if not page %} active {% endif %}">
+                        <a class="nav-link" href="/">Главная</a>
+                    </li>
+                    {% if '1' == is_admin %}
+                    <li class="nav-item{% if 'getstats' == page %} active {% endif %}">
+                        <a class="nav-link" href="/getstats/">Создать запрос</a>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item{% if 'results' == page %} active {% endif %}">
+                        <a class="nav-link" href="/results">Статистика</a>
+                    </li>
+                    <li class="nav-item{% if 'about' == page %} active {% endif %}">
+                        <a class="nav-link" href="/about">Контакты</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-md-auto">&nbsp;</div>
+            <div class="col col-lg-2">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item{% if page in ('login','logout') %} active {% endif %}">
+                        {% if is_admin == '1' %}
+                        <a class="nav-link" href="/logout">Выход</a>
+                        {% else %}
+                        <a class="nav-link" href="/login">Служебный вход</a>
+                        {% endif %}
+                    </li>
+                </ul>
+            </div>
+        </div>
     </div>
     <div class="container">
         <br/><br/>
-        <h5>Сервис сбора статистики</h5>
-        <p>
-            <hr/>
-            Предоставляет возможность собрать статистику о величине заработной платы
-            и требующихся навыках по интересующим вакансиям базы HeadHunter.<br/>
-            Позволяет использовать синтаксис запросов HeadHunter и дополнительно выбирать
-            интересующие регионы.
-            <hr/>
-            <a href="./request.html" class="btn btn-dark btn-sm active" role="button" aria-pressed="true">
-                Понеслась...
-            </a>
-        </p>
+        <div>{% block content %}
+            {% if not page %}
+            <h5>Сервис сбора статистики</h5>
+            <p>
+                <hr/>
+                Предоставляет возможность собрать статистику о величине заработной платы
+                и требующихся навыках по интересующим вакансиям базы сайта HeadHunter.<br/>
+                Допускает использовать в поисковой строке
+                синтаксис запросов HeadHunter и дополнительно выбирать интересующие регионы.<br/>
+                Использует API, предоставляемый сайтом.<br/>
+                Сбор статистики доступен только специально обученным людям, которые знают секретный секрет.
+                <hr/>
+                <a href="/{% if '1' == is_admin %}getstats{% else %}results{% endif %}/" class="btn btn-dark btn-sm active" role="button" aria-pressed="true">
+                    Понеслась...
+                </a>
+            </p>
+            {% else %}
+            Страница "{{ page }}" не существует на сервере.
+            {% endif %}
+            {% endblock %}
+        </div>
     </div>
+
 </body>
 </html>

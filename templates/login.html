@@ -1,0 +1,15 @@
+{% extends 'index.html' %}
+{% block content %}
+        {% if '1' == login_failed %}
+        <p style="color: red;">Плохо притворяетесь секретным человеком!</p>
+        {% endif %}
+        <h5>Разрешение:</h5>
+        <hr/>
+        <form method="post" action="/login/">
+            <div class="form-group">
+                <input type="password" placeholder="Введите секретный секрет здесь" name="text" class="form-control">
+            </div>
+            <input type="submit" class="btn btn-dark btn-sm">
+        </form>
+        <hr/>
+{% endblock %}

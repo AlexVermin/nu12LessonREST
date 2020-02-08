@@ -2,11 +2,11 @@ import requests
 import time
 import json
 import os
-
+from modules.hh_area_class import HHArea
 
 API_URL = 'https://api.hh.ru'
 VACANCIES = f'{API_URL}/vacancies'
-SAVE_PLACE = './saved_reqs'
+SAVE_PLACE = './modules/saved_reqs'
 
 
 class HHStatistics:
@@ -34,9 +34,12 @@ class HHStatistics:
     def get_area_name(self):
         return self._area_name
 
-    def set_area(self, p_id, p_name):
+    def set_area(self, p_id, p_name=None):
         self._area = p_id
-        self._area_name = p_name
+        m_name = p_name
+        if m_name is None:
+            m_name = HHArea.load_area_by_id(p_id)
+        self._area_name = m_name
         self._stats = ''
 
     def clear_areas(self):
@@ -132,7 +135,7 @@ class HHStatistics:
         else:
             return -1  # не задана строка поиска
         # всё ок, значит надо сохранить статистику в файл
-        m_result['avg_salary'] = round(m_result['avg_salary'] / m_result['count'], 2)
+        m_result['avg_salary'] = 0 if 0 == m_result['count'] else round(m_result['avg_salary'] / m_result['count'], 2)
         skill_list = list(m_result['skills'].items())
         skill_list.sort(key=lambda z: z[1], reverse=True)
         m_result['skills'] = skill_list
@@ -155,10 +158,40 @@ class HHStatistics:
     def get_statistics(self):
         return self._stats
 
+    @staticmethod
+    def get_list():
+        m_res = {}
+        if os.path.exists(f'{SAVE_PLACE}'):
+            m_files = [z for z in os.listdir(f'{SAVE_PLACE}') if os.path.isfile(f'{SAVE_PLACE}/{z}')]
+            m_files.sort()
+            for item in m_files:
+                with open(f'{SAVE_PLACE}/{item}', 'r') as f:
+                    js = json.load(f)
+                m_res[item] = {
+                    'query': js['text'],
+                    'place': js['area_name'],
+                    'time': time.strftime('%d.%m.%Y %H:%M:%S', time.strptime(item, '%Y%m%d_%H%M%S'))
+                }
+
+        return m_res
+
+    def __getitem__(self, item):
+        m_list = self.get_list()
+        if item in m_list.keys():
+            with open(f'{SAVE_PLACE}/{item}') as f:
+                m_js = json.load(f)
+            if 'skills' in m_js.keys():
+                total_wgt = 0
+                for x in m_js['skills']:
+                    total_wgt += x[1]
+                m_js['total_wgt'] = total_wgt
+            return m_js
+        else:
+            return None
+
 
 if '__main__' == __name__:
     obj = HHStatistics()
-    obj.set_search_str('python developer')
-    obj.set_area(2, 'Санкт-Питербург')
+    obj.set_search_str('python tester')
+    obj.set_area(4)
     obj.load_data()
-    print(obj.get_statistics())
