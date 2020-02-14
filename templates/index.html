@@ -6,6 +6,19 @@
     <title>{% if page_title %} {{page_title}} {% else %} Главная страница {% endif %}</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script language="JavaScript">
+        function showAlert(p_title, p_message) {
+            var m_ttl = document.getElementById('mdlWindowTitle');
+            if (m_ttl) {
+                m_ttl.innerHTML = p_title;
+            }
+            var m_ttl = document.getElementById('mdlInfo');
+            if (m_ttl) {
+                m_ttl.innerHTML = p_message;
+            }
+            $("#mdlWindow").modal('show');
+        }
+    </script>
 </head>
 <body>
     <div class="container">
@@ -46,7 +59,7 @@
         <br/><br/>
         <div>{% block content %}
             {% if not page %}
-            <h5>Сервис сбора статистики</h5>
+            <div class="alert alert-dark" role="alert"><h5>Сервис сбора статистики</h5></div>
             <p>
                 <hr/>
                 Предоставляет возможность собрать статистику о величине заработной платы
@@ -66,6 +79,25 @@
             {% endblock %}
         </div>
     </div>
-
+    <div class="modal fade" id="mdlWindow" tabindex="-1" role="dialog" aria-labelledby="mdlWindowTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="mdlWindowTitle">Modal title</h5>
+                </div>
+                <div class="modal-body" id="mdlInfo">
+                    Выполняется запрошенное действие, пожалуйста, подождите.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" id="mdlCloseButton">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
 </body>
 </html>

@@ -31,18 +31,6 @@ def show_about_page():
     return render_template('about.html', page='about', page_title=TITLES['about'], is_admin=check_admin())
 
 
-"""
-@web.route('/<page>')
-def main_handler(page):
-    m_title = ''
-    m_template = 'index.html'
-    if page is not None and page in TITLES.keys():
-        m_title = TITLES[page]
-        m_template = f'{page}.html'
-    return render_template(m_template, page=page, page_title=m_title, is_admin=check_admin())
-"""
-
-
 @web.route('/results/', defaults={'show_obj': None})
 @web.route('/results/<show_obj>')
 def show_results_page(show_obj):
@@ -120,6 +108,24 @@ def load_data():
     print(f'rgn => {request.form["area"]}')
     m_obj.load_data()
     return redirect(url_for('show_results_page'))
+
+
+@web.route('/update_areas/')
+def update_area_list():
+    m_area = HHArea()
+    m_area.clear_table()
+    m_area.save_from_web()
+    return jsonify('{"result": "ok"}')
+
+
+@web.route('/file2db/<p_obj>')
+def copy_file2db(p_obj):
+    m_obj = HHStatistics()
+    if m_obj.save_file(p_obj):
+        ret_value = 'ok'
+    else:
+        ret_value = 'Ошибка при переносе.'
+    return jsonify(f'{{"result": "{ret_value}"}}')
 
 
 if __name__ == "__main__":

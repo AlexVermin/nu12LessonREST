@@ -1,6 +1,52 @@
 {% extends 'index.html' %}
 {% block content %}
-    <h5>Сохранённые запросы</h5>
+    <div class="alert alert-dark" role="alert">
+        <h5>Сохранённые запросы</h5>
+        {% if '1' == is_admin %}
+        <hr/>
+        <script language="JavaScript">
+        function updAreaList() {
+            if ( confirm('Вся ранее загруженная статистика будет удалена. Продолжить?') ) {
+                var m_btn = document.getElementById('mdlCloseButton');
+                if (m_btn) {
+                    m_btn.disabled = true;
+                }
+                showAlert('Обновление базы регионов', 'Выполняется запрошенное действие, пожалуйста, подождите.');
+                var m_xhr = new XMLHttpRequest();
+                m_xhr.open('GET', '/update_areas/');
+                m_xhr.responseType = 'json';
+                m_xhr.send();
+                m_xhr.onload = function() {
+                    if (m_xhr.status == 200) {
+                        var m_info = document.getElementById('mdlInfo');
+                        if (m_info) {
+                            m_info.innerHTML = 'Готово.'
+                        }
+                        if (m_btn) {
+                            m_btn.disabled = false;
+                        }
+                    }
+                }
+                m_xhr.onerror = function() {
+                    var m_info = document.getElementById('mdlInfo');
+                    if (m_info) {
+                        m_info.innerHTML = 'Ошибка обновления.'
+                    }
+                    if (m_btn) {
+                        m_btn.disabled = false;
+                    }
+                }
+            }
+        }
+        </script>
+        <div align="right">
+            <input type="button" class="btn btn-dark btn-sm" value="Обновить список регионов"
+                   datatoggle="modal" datatarget="#mdlWindow"
+                   onclick="updAreaList()"
+            >
+        </div>
+        {% endif %}
+    </div>
     <p>
         <hr/>
         {% if m_table %}

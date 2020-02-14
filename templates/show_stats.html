@@ -1,7 +1,63 @@
 {% extends 'index.html' %}
 {% block content %}
         <br/><br/>
-        <h5>Статистика по запросу</h5>
+        <div class="alert alert-dark" role="alert">
+            <h5>Статистика по запросу</h5>
+            {% if '1' == is_admin and '0' == m_table.in_db %}
+            <script language="JavaScript">
+            function copy2db(p_item) {
+                showAlert('Копирование статистики в базу.', 'В процессе...');
+                var m_btn = document.getElementById('mdlCloseButton');
+                if (m_btn) {
+                    m_btn.disabled = true;
+                }
+                var m_xhr = new XMLHttpRequest();
+                m_xhr.open('GET', '/file2db/'+p_item);
+                m_xhr.responseType = 'json';
+                m_xhr.send();
+                m_xhr.onload = function() {
+                    if (m_xhr.status == 200) {
+                        var m_info = document.getElementById('mdlInfo');
+                        if (m_info) {
+                            var m_resp = JSON.parse(m_xhr.response);
+                            m_info.innerHTML = ' [' + p_item + '] :: ' + m_resp.result;
+                            if ('ok' == m_resp.result) {
+                                var m_save = document.getElementById('saveButton');
+                                if (m_save) {
+                                    m_save.hidden = true;
+                                }
+                            }
+                        }
+                        if (m_btn) {
+                            m_btn.disabled = false;
+                        }
+                    }
+                    else {
+                        showAlert('Копирование статистики в базу.', 'Ошибка: ' + m_xhr.statusText);
+                        if (m_btn) {
+                            m_btn.disabled = false;
+                        }
+                    }
+                }
+                m_xhr.onerror = function() {
+                    var m_info = document.getElementById('mdlInfo');
+                    if (m_info) {
+                        m_info.innerHTML = 'Ошибка сохранения.'
+                    }
+                    if (m_btn) {
+                        m_btn.disabled = false;
+                    }
+                }
+            }
+        </script>
+            <div align="right">
+                <input type="button" class="btn btn-dark btn-sm" value="Перенести в базу"
+                       datatoggle="modal" datatarget="#mdlWindow"
+                       onclick="copy2db('{{ m_table.obj }}')" id="saveButton"
+                >
+            </div>
+            {% endif %}
+        </div>
         <p>
             <hr/>
             {% if m_table %}
@@ -24,7 +80,7 @@
                     </tr>
                     <tr>
                         <th scope="row">Найдено вакансий:</th>
-                        <td>{{ m_table.count }}</td>
+                        <td>{{ m_table.vacancy_count }}</td>
                     </tr>
                 </tbody>
             </table>
@@ -71,18 +127,6 @@
                             <td>{{ "%.2f"|format(x[1] / m_table.total_wgt * 100)}}</td>
                         </tr>
                         {% endfor %}
-                        <!--
-                        <tr>
-                            <td colspan="3" align="right">
-                                <a
-                                   href="#" class="btn btn-dark btn-sm active" role="button" aria-pressed="true"
-                                   onclick="return false;"
-                                >
-                                    Ещё >>>
-                                </a>
-                            </td>
-                        </tr>
-                        -->
                     </tbody>
                 </table>
                 {% else %}
